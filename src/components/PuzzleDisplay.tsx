@@ -9,8 +9,17 @@ declare global {
   }
 }
 
-// Get the API URL from environment variables
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+// Get the API URL from environment variables and ensure it has the correct scheme
+const API_URL = (() => {
+  const url = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  // Ensure URL starts with http:// or https://
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    return `https://${url}`;
+  }
+  return url;
+})();
+
+console.log('Configured API URL:', API_URL); // Debug log
 
 const Container = styled.div`
   display: flex;
