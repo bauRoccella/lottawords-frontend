@@ -1,6 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      REACT_APP_API_URL?: string;
+    }
+  }
+}
+
+// Get the API URL from environment variables
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -58,8 +69,12 @@ const SideContainer = styled.div`
   gap: 1rem;
 `;
 
-const Letter = styled.div<{ highlightColor?: string }>`
-  background-color: ${props => props.highlightColor || '#FF5A57'};
+interface StyledProps {
+  highlightColor?: string;
+}
+
+const Letter = styled.div<StyledProps>`
+  background-color: ${(props: StyledProps) => props.highlightColor || '#FF5A57'};
   color: white;
   padding: 1rem;
   border-radius: 8px;
@@ -72,7 +87,7 @@ const Letter = styled.div<{ highlightColor?: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: ${props => props.highlightColor ? `0 0 10px ${props.highlightColor}` : 'none'};
+  box-shadow: ${(props: StyledProps) => props.highlightColor ? `0 0 10px ${props.highlightColor}` : 'none'};
 `;
 
 const SolutionsContainer = styled.div`
@@ -227,30 +242,21 @@ const PuzzleDisplay: React.FC = () => {
 
   const fetchPuzzleData = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/puzzle');
+      setIsLoading(true);
+      const response = await fetch(`${API_URL}/api/puzzle`);
       const data = await response.json();
-      console.log('API Response:', data);
       
-      // Check if we got an empty response or error
-      if (!data || data.error || (data.status === 'loading')) {
-        console.log('Data not ready yet, retrying...');
-        retryFetchWithDelay();
-        return;
-      }
-
-      // Check if we got valid puzzle data
-      if (!data.square || !data.square.top) {
-        console.log('Received incomplete data, retrying...');
-        retryFetchWithDelay();
+      if (data.error) {
+        setError(data.error);
         return;
       }
       
-      setPuzzleData(data);
+      setPuzzleData(data.puzzle_data);
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching puzzle data:', error);
-      // Instead of failing, retry
-      retryFetchWithDelay();
+      setError('Failed to fetch puzzle data. Please try again later.');
+      setIsLoading(false);
     }
   };
 
