@@ -243,19 +243,37 @@ const PuzzleDisplay: React.FC = () => {
   const fetchPuzzleData = async () => {
     try {
       setIsLoading(true);
+      console.log('Attempting to fetch from:', `${API_URL}/api/puzzle`);
+      
       const response = await fetch(`${API_URL}/api/puzzle`);
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      
       const data = await response.json();
+      console.log('Response data:', data);
       
       if (data.error) {
+        console.error('API returned error:', data.error);
         setError(data.error);
         return;
       }
+
+      if (!data.square || !data.nyt_solution || !data.lotta_solution) {
+        console.error('Invalid data structure received:', data);
+        setError('Received invalid data structure from server');
+        return;
+      }
       
-      // The data is not wrapped in puzzle_data
+      console.log('Setting puzzle data:', data);
       setPuzzleData(data);
       setIsLoading(false);
     } catch (error) {
-      console.error('Error fetching puzzle data:', error);
+      console.error('Detailed fetch error:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        API_URL,
+        env: process.env
+      });
       setError('Failed to fetch puzzle data. Please try again later.');
       setIsLoading(false);
     }
