@@ -254,9 +254,22 @@ const PuzzleDisplay: React.FC = () => {
       setIsLoading(true);
       console.log('Attempting to fetch from:', `${API_URL}/api/puzzle`);
       
-      const response = await fetch(`${API_URL}/api/puzzle`);
+      const response = await fetch(`${API_URL}/api/puzzle`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        mode: 'cors',
+        credentials: 'same-origin'
+      });
+
       console.log('Response status:', response.status);
       console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
       const data = await response.json();
       console.log('Response data:', data);
@@ -281,9 +294,16 @@ const PuzzleDisplay: React.FC = () => {
         error,
         message: error instanceof Error ? error.message : 'Unknown error',
         API_URL,
-        env: process.env
+        env: process.env,
+        origin: window.location.origin
       });
-      setError('Failed to fetch puzzle data. Please try again later.');
+      
+      if (error instanceof Error && error.message.includes('CORS')) {
+        setError('CORS error: Unable to connect to the server. Please try again later.');
+      } else {
+        setError('Failed to fetch puzzle data. Please try again later.');
+      }
+      
       setIsLoading(false);
     }
   };
