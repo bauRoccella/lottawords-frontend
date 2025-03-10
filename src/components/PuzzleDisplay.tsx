@@ -251,7 +251,8 @@ const PuzzleDisplay: React.FC = () => {
         return;
       }
       
-      setPuzzleData(data.puzzle_data);
+      // The data is not wrapped in puzzle_data
+      setPuzzleData(data);
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching puzzle data:', error);
