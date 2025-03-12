@@ -25,17 +25,25 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem;
-  gap: 2rem;
+  padding: 1rem;
+  gap: 1rem;
+
+  @media (max-width: 480px) {
+    padding: 0.5rem;
+  }
 `;
 
 const PuzzleBox = styled.div`
   background-color: #2a2a2a;
-  padding: 2rem;
+  padding: 1rem;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 800px;
+
+  @media (max-width: 480px) {
+    padding: 0.8rem;
+  }
 `;
 
 const Title = styled.h2`
@@ -45,8 +53,8 @@ const Title = styled.h2`
 
 const PuzzleGridContainer = styled.div`
   position: relative;
-  width: 400px;
-  height: 400px;
+  width: min(400px, 90vw);
+  height: min(400px, 90vw);
   margin-bottom: 2rem;
   margin-left: auto;
   margin-right: auto;
@@ -85,18 +93,24 @@ interface StyledProps {
 const Letter = styled.div<StyledProps>`
   background-color: ${(props: StyledProps) => props.highlightColor || '#FF5A57'};
   color: white;
-  padding: 1rem;
+  padding: 0.8rem;
   border-radius: 8px;
   text-align: center;
-  font-size: 1.6rem;
+  font-size: clamp(1rem, 4vw, 1.6rem);
   font-weight: bold;
   transition: transform 0.2s ease;
-  min-width: 3.2rem;
-  height: 3.2rem;
+  min-width: 2.6rem;
+  height: 2.6rem;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: ${(props: StyledProps) => props.highlightColor ? `0 0 10px ${props.highlightColor}` : 'none'};
+
+  @media (max-width: 480px) {
+    padding: 0.6rem;
+    min-width: 2rem;
+    height: 2rem;
+  }
 `;
 
 const SolutionsContainer = styled.div`
@@ -104,6 +118,10 @@ const SolutionsContainer = styled.div`
   flex-direction: row;
   gap: 1rem;
   width: 100%;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
 `;
 
 const SolutionSection = styled.div`
@@ -322,7 +340,7 @@ const PuzzleDisplay: React.FC = () => {
 
   const calculateLetterPositions = () => {
     const positions: {[key: string]: {x: number, y: number}} = {};
-    const padding = 45;
+    const padding = containerSize.width * 0.11;
     const width = containerSize.width - 2 * padding;
     const height = containerSize.height - 2 * padding;
     
